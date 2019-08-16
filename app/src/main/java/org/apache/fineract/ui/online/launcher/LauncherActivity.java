@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.mifos.mobile.passcode.utils.PassCodeConstants;
 
 import org.apache.fineract.R;
+import org.apache.fineract.data.couchbasesync.SynchronizationManager;
 import org.apache.fineract.data.local.PreferenceKey;
 import org.apache.fineract.data.local.PreferencesHelper;
 import org.apache.fineract.data.models.Authentication;
@@ -18,7 +19,7 @@ import javax.inject.Inject;
 
 /**
  * @author Rajan Maurya
- *         On 18/06/17.
+ * On 18/06/17.
  */
 public class LauncherActivity extends FineractBaseActivity implements LauncherContract.View {
 
@@ -48,6 +49,8 @@ public class LauncherActivity extends FineractBaseActivity implements LauncherCo
             if (DateUtils.isTokenExpired(authentication.getAccessTokenExpiration())) {
                 checkRefreshAccessToken();
             } else {
+                // Added to add Sync process when the user is successfully logged in
+                SynchronizationManager.getSynchronizationManager().startPushAndPullReplicationForCurrentUser();
                 startPasscodeActivity();
             }
         } else {

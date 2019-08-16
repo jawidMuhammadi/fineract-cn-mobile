@@ -4,6 +4,7 @@ import static com.raizlabs.android.dbflow.sql.language.SQLite.select;
 
 import com.google.gson.Gson;
 
+import org.apache.fineract.FakeRemoteDataSource;
 import org.apache.fineract.data.local.database.syncmodels.customer.CustomerPayload;
 import org.apache.fineract.data.local.database.syncmodels.customer.CustomerPayload_Table;
 import org.apache.fineract.data.models.customer.Customer;
@@ -20,6 +21,7 @@ import javax.inject.Singleton;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.functions.Function;
 
 @Singleton
 public class DatabaseHelperCustomer {
@@ -58,12 +60,21 @@ public class DatabaseHelperCustomer {
                         .from(Customer.class)
                         .where(Customer_Table.identifier.eq(identifier))
                         .querySingle();
-                if (customer == null)
-                    customer = new Customer();
-                    //else it will throw exception and will not go in the flatMap
+                if (customer == null) {
+                    throw new Exception("Customer not found");
+                    //customer = new Customer();
+                }
+                //else it will throw exception and will not go in the flatMap
                 return Observable.just(customer);
             }
-        });
+        }).onErrorResumeNext(
+                new Function<Throwable, ObservableSource<Customer>>() {
+                    @Override
+                    public ObservableSource<Customer> apply(
+                            Throwable throwable) throws Exception {
+                        return Observable.just(FakeRemoteDataSource.getCustomer());
+                    }
+                });
 
     }
 
@@ -98,7 +109,7 @@ public class DatabaseHelperCustomer {
 
                 List<Customer> customerList = new ArrayList<>();
                 Gson gson = new Gson();
-                for (CustomerPayload payload: customerPayloads) {
+                for (CustomerPayload payload : customerPayloads) {
                     customerList.add(gson.fromJson(payload.getCustomerPayload(), Customer.class));
                 }
                 return Observable.just(customerList);

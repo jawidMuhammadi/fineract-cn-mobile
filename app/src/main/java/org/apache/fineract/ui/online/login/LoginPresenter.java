@@ -6,6 +6,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.apache.fineract.R;
+import org.apache.fineract.data.couchbasesync.SynchronizationManager;
 import org.apache.fineract.data.datamanager.api.DataManagerAuth;
 import org.apache.fineract.data.models.Authentication;
 import org.apache.fineract.data.models.error.MifosError;
@@ -70,6 +71,7 @@ public class LoginPresenter extends BasePresenter<LoginContract.View>
                     @Override
                     public void onNext(Authentication user) {
                         getMvpView().hideProgressDialog();
+                        SynchronizationManager.getSynchronizationManager().saveBasicAuthentication(username, password);
                         getMvpView().showUserLoginSuccessfully(user);
                     }
 

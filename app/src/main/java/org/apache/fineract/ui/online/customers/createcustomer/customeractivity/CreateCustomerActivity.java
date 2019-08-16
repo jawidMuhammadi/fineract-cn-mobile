@@ -162,7 +162,7 @@ public class CreateCustomerActivity extends FineractBaseActivity
         Toast.makeText(this, getString(R.string.customer_created_successfully,
                 customer.getGivenName()), Toast.LENGTH_LONG).show();
         Intent customerDetailsIntent = new Intent(this, CustomerDetailsActivity.class);
-        customerDetailsIntent.putExtra(ConstantKeys.CUSTOMER_IDENTIFIER, customer.getIdentifier());
+        customerDetailsIntent.putExtra(ConstantKeys.CUSTOMER_IDENTIFIER, customer);
         startActivity(customerDetailsIntent);
         finish();
     }

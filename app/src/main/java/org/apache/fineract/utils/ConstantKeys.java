@@ -25,6 +25,7 @@ public class ConstantKeys {
     public static final String DEPOSIT_ACTION = "deposit_action";
     public static final String DEPOSIT_ACCOUNT = "deposit";
     public static final String COUNTRIES = "countries";
+    public static final String BASIC_AUTH_KEY = "basic_auth_key";
 
     public static final String PAYROLL_CONFIG = "payrollConfiguration";
 

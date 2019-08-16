@@ -8,6 +8,7 @@ import com.evernote.android.job.JobManager;
 import com.mifos.mobile.passcode.utils.ForegroundChecker;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
+import org.apache.fineract.data.couchbasesync.SynchronizationManager;
 import org.apache.fineract.injection.component.ApplicationComponent;
 import org.apache.fineract.injection.component.DaggerApplicationComponent;
 import org.apache.fineract.injection.module.ApplicationModule;
@@ -37,6 +38,7 @@ public class FineractApplication extends Application {
         Fabric.with(this, new Crashlytics());
         FlowManager.init(this);
         ForegroundChecker.init(this);
+        SynchronizationManager.initialization();
     }
 
     public static Context getContext() {
