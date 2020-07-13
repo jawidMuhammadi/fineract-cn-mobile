@@ -72,4 +72,6 @@ ext {
     mifosPasscodeVersion = '1.0.0'
     easyValidationVersion = '1.0.1'
     version_kotlin_coroutines = '1.3.4'
+    location = '17.0.0'
+    map_utils = "1.0.0"
 }
