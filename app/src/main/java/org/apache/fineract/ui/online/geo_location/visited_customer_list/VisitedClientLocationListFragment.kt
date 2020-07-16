@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import kotlinx.android.synthetic.main.fragment_visted_customers_list.view.*
 import org.apache.fineract.R
+import org.apache.fineract.ui.adapters.VisitedClientLocationAdapter
 import org.apache.fineract.ui.base.FineractBaseActivity
 import org.apache.fineract.ui.base.FineractBaseFragment
 import javax.inject.Inject
@@ -17,6 +20,9 @@ class VisitedClientLocationListFragment : FineractBaseFragment() {
 
     @Inject
     lateinit var factory: VisitedClientLocationViewModelFactory
+
+    @Inject
+    lateinit var adapter: VisitedClientLocationAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +36,19 @@ class VisitedClientLocationListFragment : FineractBaseFragment() {
         rootView = inflater.inflate(R.layout.fragment_visted_customers_list, container, false)
         (activity as FineractBaseActivity).activityComponent.inject(this)
         viewModel = ViewModelProviders.of(this, factory).get(VisitedClientLocationViewModel::class.java)
+        rootView.rvVisitedClient.adapter = adapter
 
+        subscribeUI()
         return rootView
+    }
+
+    private fun subscribeUI() {
+        viewModel.getVisitedClientLocationList()
+        viewModel.locationList.observe(this, Observer {
+            it?.let { list ->
+                adapter.submitList(list)
+            }
+        })
     }
 
     companion object {

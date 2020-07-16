@@ -544,4 +544,6 @@
     <string name="error_while_creating_group">Error while creating group</string>
     <string name="app_map_key">app_map_key</string>
     <string name="location">Location</string>
+    <string name="client_name">Client Name</string>
+    <string name="visit_date">Visit Date</string>
 </resources>

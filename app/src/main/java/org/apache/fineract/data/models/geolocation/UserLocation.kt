@@ -16,8 +16,11 @@ data class UserLocation(
         @SerializedName("client_name")
         var clientName: String? = null,
 
+        @SerializedName("address")
+        var address: String? = null,
+
         @SerializedName("latlng")
-        var latlng: String? = null,
+        var latlng: UserLatLng? = null,
 
         @SerializedName("start_time")
         var startTime: String? = null,
