@@ -1,5 +1,6 @@
 package org.apache.fineract.ui.online.geo_location.visited_customer_list
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import org.apache.fineract.R
 import org.apache.fineract.ui.adapters.VisitedClientLocationAdapter
 import org.apache.fineract.ui.base.FineractBaseActivity
 import org.apache.fineract.ui.base.FineractBaseFragment
+import org.apache.fineract.ui.online.geo_location.visit_customer.VisitCustomersActivity
 import javax.inject.Inject
 
 class VisitedClientLocationListFragment : FineractBaseFragment() {
@@ -37,6 +39,10 @@ class VisitedClientLocationListFragment : FineractBaseFragment() {
         (activity as FineractBaseActivity).activityComponent.inject(this)
         viewModel = ViewModelProviders.of(this, factory).get(VisitedClientLocationViewModel::class.java)
         rootView.rvVisitedClient.adapter = adapter
+
+        rootView.btnVisitCustomer?.setOnClickListener {
+            startActivity(Intent(activity, VisitCustomersActivity::class.java))
+        }
 
         subscribeUI()
         return rootView

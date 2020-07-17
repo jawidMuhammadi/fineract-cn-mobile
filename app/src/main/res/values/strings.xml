@@ -542,8 +542,11 @@
     <string name="please_wait_updating_group_status">"Updating group status, please wait... "</string>
     <string name="error_while_updating_group_status">Error while updating group status</string>
     <string name="error_while_creating_group">Error while creating group</string>
-    <string name="app_map_key">app_map_key</string>
+    <string name="app_map_key">AIzaSyDj0eIgr0ZUoCAx_fvWT0VSLyCXvK8gjCw</string>
     <string name="location">Location</string>
     <string name="client_name">Client Name</string>
     <string name="visit_date">Visit Date</string>
+    <string name="visit_customer">Visit Customer</string>
+    <string name="nearby_customers">Nearby Clients</string>
+    <string name="enter_manually">Enter Manually</string>
 </resources>

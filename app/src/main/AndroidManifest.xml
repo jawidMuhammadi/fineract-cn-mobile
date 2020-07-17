@@ -24,8 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="n">
-        <activity android:name=".ui.online.geo_location.visit_customer.VisitCustomersActivity"></activity>
-        <activity android:name=".ui.online.geo_location.VisitedLocationListActivity" />
+
+        <activity android:name=".ui.online.geo_location.visit_customer.VisitCustomersActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
