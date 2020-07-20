@@ -13,32 +13,49 @@ import android.provider.Settings
 import android.view.Menu
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.button.MaterialButton
 import kotlinx.android.synthetic.main.activity_visit_customers2.*
 import org.apache.fineract.R
+import org.apache.fineract.data.models.geolocation.GeoPoint
 import org.apache.fineract.ui.base.FineractBaseActivity
 import org.apache.fineract.utils.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
 import org.apache.fineract.utils.Constants.PERMISSIONS_REQUEST_ENABLE_GPS
 import org.apache.fineract.utils.MaterialDialog
 import org.apache.fineract.utils.Utils
+import javax.inject.Inject
 
 
 class VisitCustomersActivity : FineractBaseActivity(), OnMapReadyCallback {
+
+    private var fusedLocationClient: FusedLocationProviderClient? = null
+
+    @Inject
+    lateinit var factory: VisitCustomerViewModelFactory
+    private var viewModel: VisitCustomerViewModel? = null
+
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_visit_customers2)
+        activityComponent.inject(this)
         showBackButton()
         setToolbarTitle(getString(R.string.visit_customer))
-        setupMapView()
+        setupMapView(savedInstanceState)
+        viewModel = ViewModelProviders.of(this, factory).get(VisitCustomerViewModel::class.java)
         changeBackgroundColor(fabEnterManually, false)
+        subscribeUI()
+    }
 
+    private fun subscribeUI() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fabEnterManually?.setOnClickListener {
             changeBackgroundColor(fabEnterManually, true)
             changeBackgroundColor(fabNearbyCustomers, false)
@@ -64,14 +81,27 @@ class VisitCustomersActivity : FineractBaseActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun setupMapView() {
-        mapView.onCreate(null)
+    private fun setupMapView(bundle: Bundle?) {
+        mapView.onCreate(bundle)
         mapView?.getMapAsync(this)
-        MapsInitializer.initialize(this)
-        mapView.onResume()
-        mapView.postInvalidate()
     }
 
+
+    fun getLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            getLocationPermission()
+            return
+        }
+        fusedLocationClient?.lastLocation?.addOnCompleteListener {
+            val location = it.result
+            val geoPoint = GeoPoint(location?.latitude, location?.longitude)
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -86,10 +116,17 @@ class VisitCustomersActivity : FineractBaseActivity(), OnMapReadyCallback {
 
     override fun onResume() {
         super.onResume()
+        mapView.onResume()
         if (checkMapServices()) {
             getLocationPermission()
         }
     }
+
+    override fun onPause() {
+        super.onPause()
+        mapView?.onPause()
+    }
+
 
     private fun checkMapServices(): Boolean {
         if (isMapsEnabled()) {
@@ -99,9 +136,32 @@ class VisitCustomersActivity : FineractBaseActivity(), OnMapReadyCallback {
     }
 
     override fun onMapReady(map: GoogleMap?) {
+        if (ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        map?.isMyLocationEnabled = true
         val sydney = LatLng(-34.0, 151.0)
-        map?.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+        map?.addMarker(MarkerOptions().position(sydney).title("Marker Mifos"))
         map?.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapView?.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView?.onStop()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        onLowMemory()
     }
 
     private fun getLocationPermission() {

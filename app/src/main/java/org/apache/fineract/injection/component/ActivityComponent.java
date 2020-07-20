@@ -21,6 +21,7 @@ import org.apache.fineract.ui.online.depositaccounts.createdepositaccount.create
 import org.apache.fineract.ui.online.depositaccounts.createdepositaccount.formdepositassignproduct.FormDepositAssignProductFragment;
 import org.apache.fineract.ui.online.depositaccounts.depositaccountdetails.DepositAccountDetailsFragment;
 import org.apache.fineract.ui.online.depositaccounts.depositaccountslist.DepositAccountsFragment;
+import org.apache.fineract.ui.online.geo_location.visit_customer.VisitCustomersActivity;
 import org.apache.fineract.ui.online.geo_location.visited_customer_list.VisitedClientLocationListFragment;
 import org.apache.fineract.ui.online.groups.creategroup.AddGroupLeaderStepFragment;
 import org.apache.fineract.ui.online.groups.creategroup.AddGroupMemberStepFragment;
@@ -149,5 +150,7 @@ public interface ActivityComponent {
     void inject(GroupTasksBottomSheetFragment groupTasksBottomSheetFragment);
 
     void inject(VisitedClientLocationListFragment visitedClientLocationListFragment);
+
+    void inject(VisitCustomersActivity visitCustomersActivity);
 }
 

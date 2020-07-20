@@ -9,7 +9,7 @@ import kotlinx.android.parcel.Parcelize
  */
 
 @Parcelize
-data class UserLatLng(
+data class GeoPoint(
         @SerializedName("lat")
         var lat: Double? = null,
 

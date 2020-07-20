@@ -10,4 +10,6 @@ import org.apache.fineract.data.models.geolocation.UserLocation
 interface GeolocationService {
 
     fun getVisitedCustomerLocationListAsync(): Deferred<List<UserLocation>>
+
+    fun saveLastKnownLocation(userLocation: UserLocation)
 }

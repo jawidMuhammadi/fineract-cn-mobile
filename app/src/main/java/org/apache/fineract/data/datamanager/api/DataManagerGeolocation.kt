@@ -19,4 +19,8 @@ class DataManagerGeolocation @Inject constructor(private val baseManagerApi: Bas
         return baseManagerApi.geolocationService.getVisitedCustomerLocationListAsync()
     }
 
+    suspend fun saveLastKnownLocation(userLocation: UserLocation) {
+        baseManagerApi.geolocationService.saveLastKnownLocation(userLocation)
+    }
+
 }

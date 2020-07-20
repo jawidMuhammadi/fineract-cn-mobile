@@ -3,6 +3,7 @@ package org.apache.fineract.data.models.geolocation
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
+import java.util.*
 
 /**
  * Created by Ahmad Jawid Muhammadi on 15/7/20.
@@ -20,7 +21,7 @@ data class UserLocation(
         var address: String? = null,
 
         @SerializedName("latlng")
-        var latlng: UserLatLng? = null,
+        var latlng: GeoPoint? = null,
 
         @SerializedName("start_time")
         var startTime: String? = null,
@@ -29,7 +30,7 @@ data class UserLocation(
         var stopTime: String? = null,
 
         @SerializedName("date")
-        var date: String? = null
+        var date: String = Date().time.toString()
 
 ) : Parcelable {
     var dateFormat = "dd MMMM yyyy HH:mm"
