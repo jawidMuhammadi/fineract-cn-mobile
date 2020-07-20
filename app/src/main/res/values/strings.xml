@@ -549,4 +549,6 @@
     <string name="visit_customer">Visit Customer</string>
     <string name="nearby_customers">Nearby Clients</string>
     <string name="enter_manually">Enter Manually</string>
+    <string name="application_require_gps_msg">This application requires GPS to work properly, do you want to enable it?</string>
+    <string name="yes">Yes</string>
 </resources>
