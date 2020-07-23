@@ -48,4 +48,7 @@ public class ConstantKeys {
 
     public static final String LEDGER = "ledger";
     public static final String LEDGER_ACTION = "ledger_action";
+    public static final String CURR_PASSWORD = "currentPassword";
+    public static final String IS_TO_UPDATE_PASS_CODE = "updatePassCode";
+
 }

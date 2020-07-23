@@ -30,6 +30,7 @@ import org.apache.fineract.ui.online.geo_location.visited_customer_list.VisitedC
 import org.apache.fineract.ui.online.groups.grouplist.GroupListFragment;
 import org.apache.fineract.ui.online.launcher.LauncherActivity;
 import org.apache.fineract.ui.online.roles.roleslist.RolesFragment;
+import org.apache.fineract.ui.online.settings.SettingsActivity;
 import org.apache.fineract.ui.online.teller.TellerFragment;
 import org.apache.fineract.ui.product.ProductFragment;
 import org.apache.fineract.utils.MaterialDialog;
@@ -145,6 +146,8 @@ public class DashboardActivity extends FineractBaseActivity implements
             case R.id.item_location:
                 replaceFragment(VisitedClientLocationListFragment.newInstance(), true, R.id.container);
                 break;
+            case R.id.item_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
