@@ -52,6 +52,7 @@ import org.apache.fineract.ui.online.roles.roledetails.RolesDetailsFragment;
 import org.apache.fineract.ui.online.roles.roleslist.RolesFragment;
 import org.apache.fineract.ui.online.teller.TellerFragment;
 import org.apache.fineract.ui.product.ProductFragment;
+import org.jetbrains.annotations.NotNull;
 
 import dagger.Subcomponent;
 
@@ -152,30 +153,14 @@ public interface ActivityComponent {
 
     void inject(GroupTasksBottomSheetFragment groupTasksBottomSheetFragment);
 
-    void inject(VisitedClientLocationListFragment visitedClientLocationListFragment);
-
-    void inject(VisitCustomersActivity visitCustomersActivity);
-
-    void inject(GroupListFragment groupListFragment);
-
-    void inject(GroupAddressStepFragment groupAddressStepFragment);
-
-    void inject(CreateGroupActivity createGroupActivity);
-
-    void inject(AddGroupMemberStepFragment addGroupMemberStepFragment);
-
-    void inject(AddGroupLeaderStepFragment addGroupLeaderStepFragment);
-
-    void inject(GroupReviewStepFragment groupReviewStepFragment);
-
-    void inject(GroupDetailsFragment groupDetailsFragment);
-
-    void inject(GroupTasksBottomSheetFragment groupTasksBottomSheetFragment);
-
     void inject(RolesDetailsFragment rolesDetailsFragment);
 
     void inject(CreateRoleFragment createRoleFragment);
 
     void inject(RolesActivity rolesActivity);
+
+    void inject(@NotNull VisitCustomersActivity visitCustomersActivity);
+
+    void inject(@NotNull VisitedClientLocationListFragment visitedClientLocationListFragment);
 }
 

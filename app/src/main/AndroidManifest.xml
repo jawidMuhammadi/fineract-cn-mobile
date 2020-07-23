@@ -28,8 +28,9 @@
         android:theme="@style/AppTheme"
         tools:targetApi="n">
 
-        <activity android:name=".ui.online.geo_location.visit_customer.VisitCustomersActivity" />
-        android:theme="@style/AppTheme">
+        <activity
+            android:name=".ui.online.geo_location.visit_customer.VisitCustomersActivity"
+            android:theme="@style/AppTheme" />
         <activity android:name=".ui.online.roles.roledetails.RolesActivity"></activity>
 
         <provider
@@ -79,12 +80,6 @@
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.online.customers.customeractivities.CustomerActivitiesActivity" />
         <activity android:name=".ui.online.groups.groupdetails.GroupDetailsActivity" />
-        <activity
-            android:name=".ui.online.groups.creategroup.CreateGroupActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-
-        <activity android:name=".ui.online.groups.groupdetails.GroupDetailsActivity" />
-
         <activity
             android:name=".ui.online.groups.creategroup.CreateGroupActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />

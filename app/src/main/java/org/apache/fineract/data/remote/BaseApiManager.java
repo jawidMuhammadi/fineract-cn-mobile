@@ -9,7 +9,6 @@ import org.apache.fineract.data.services.CustomerService;
 import org.apache.fineract.data.services.DepositService;
 import org.apache.fineract.data.services.GeolocationService;
 import org.apache.fineract.data.services.GroupsService;
-import org.apache.fineract.data.services.GroupsService;
 import org.apache.fineract.data.services.IndividualLendingService;
 import org.apache.fineract.data.services.LoanService;
 import org.apache.fineract.data.services.PayrollService;
@@ -44,7 +43,6 @@ public class BaseApiManager {
     private static TellersService tellerService;
     private static ProductService productService;
     private static PayrollService payrollService;
-    private static GroupsService groupsService;
     private static GroupsService groupsService;
     private static GeolocationService geolocationService;
 
@@ -158,9 +156,5 @@ public class BaseApiManager {
 
     public GeolocationService getGeolocationService() {
         return geolocationService;
-    }
-
-    public GroupsService getGroupsService() {
-        return groupsService;
     }
 }
