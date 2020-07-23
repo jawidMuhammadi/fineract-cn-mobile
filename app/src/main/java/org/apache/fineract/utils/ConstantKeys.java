@@ -43,4 +43,6 @@ public class ConstantKeys {
     public static final String ROLE = "role";
     public static final String ROLE_ACTION = "role_action";
 
+    public static final String LEDGER = "ledger";
+    public static final String LEDGER_ACTION = "ledger_action";
 }

@@ -33,6 +33,12 @@
             android:theme="@style/AppTheme" />
         <activity android:name=".ui.online.roles.roledetails.RolesActivity"></activity>
 
+        <activity android:name=".ui.online.accounting.ledgers.subledger.SubLedgerListActivity"></activity>
+        <activity android:name=".ui.online.accounting.ledgers.createledger.createledgeractivity.CreateLedgerActivity" />
+        <activity
+            android:name=".ui.online.accounting.ledgers.ledgerdetails.LedgerDetailsActivity"
+            android:theme="@style/AppTheme" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="org.apache.fineract.fileprovider"
@@ -68,6 +74,7 @@
         <activity
             android:name=".ui.online.customers.createcustomer.customeractivity.CreateCustomerActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+
         <activity android:name=".ui.online.loanaccounts.debtincomereport.DebtIncomeReportActivity" />
         <activity android:name=".ui.online.identification.identificationlist.IdentificationsActivity" />
         <activity android:name=".ui.online.identification.createidentification.identificationactivity.CreateIdentificationActivity" />
