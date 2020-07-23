@@ -58,13 +58,13 @@ class AddGroupMemberStepFragment : FineractBaseFragment(), Step, NameListAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_step_add_group_member, container, false)
-        ButterKnife.bind(this, rootView)
         (activity as FineractBaseActivity).activityComponent.inject(this)
         rootView.rv_name.adapter = nameLisAdapter
         nameLisAdapter.setOnItemClickListener(this)
         if (groupAction == GroupAction.EDIT) {
             showDataOnViews()
         }
+        ButterKnife.bind(this, rootView)
         return rootView
     }
 
@@ -79,7 +79,7 @@ class AddGroupMemberStepFragment : FineractBaseFragment(), Step, NameListAdapter
         nameLisAdapter.submitList(members)
     }
 
-    @Optional
+
     @OnClick(R.id.ibAddMember)
     fun showAddMemberView() {
         showAddMemberView(GroupAction.CREATE, null)

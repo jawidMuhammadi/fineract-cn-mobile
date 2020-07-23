@@ -55,13 +55,13 @@ class GroupDetailsFragment : FineractBaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_groups_details, container, false)
         (activity as FineractBaseActivity).activityComponent.inject(this)
-        ButterKnife.bind(this, rootView)
         rootView.rv_members.adapter = membersNameAdapter
         membersNameAdapter.setReview(true)
         rootView.rv_leaders.adapter = leadersNameAdapter
         leadersNameAdapter.setReview(true)
         setToolbarTitle(group.identifier)
         setHasOptionsMenu(true)
+        ButterKnife.bind(this, rootView)
         return rootView
     }
 

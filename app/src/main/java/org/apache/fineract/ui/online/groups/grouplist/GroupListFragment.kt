@@ -65,16 +65,12 @@ class GroupListFragment : FineractBaseFragment(), OnItemClickListener {
         (activity as FineractBaseActivity).activityComponent.inject(this)
         viewModel = ViewModelProviders.of(this,
                 groupViewModelFactory).get(GroupViewModel::class.java)
+        ButterKnife.bind(this, rootView)
         return rootView
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ButterKnife.bind(this, rootView)
         adapter.setItemClickListener(this)
 
         rvGroups.adapter = adapter
