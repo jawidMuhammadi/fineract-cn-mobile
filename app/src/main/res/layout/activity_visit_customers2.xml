@@ -38,6 +38,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/fabNearbyCustomers"
+                style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/layout_padding_12dp"
@@ -51,6 +52,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/fabEnterManually"
+                style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/layout_padding_8dp"

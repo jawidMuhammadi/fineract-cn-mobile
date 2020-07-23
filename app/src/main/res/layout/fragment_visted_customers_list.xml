@@ -25,6 +25,7 @@
         android:layout_marginStart="@dimen/layout_padding_12dp"
         android:layout_marginLeft="@dimen/layout_padding_12dp"
         android:layout_marginTop="@dimen/layout_padding_12dp"
+        style="@style/Widget.MaterialComponents.Button"
         android:text="@string/visit_customer"
         android:textAllCaps="false"
         app:cornerRadius="@dimen/layout_padding_24dp"
