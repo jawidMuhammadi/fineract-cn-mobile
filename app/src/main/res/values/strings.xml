@@ -551,4 +551,8 @@
     <string name="enter_manually">Enter Manually</string>
     <string name="application_require_gps_msg">This application requires GPS to work properly, do you want to enable it?</string>
     <string name="yes">Yes</string>
+    <string name="notification_channel_id">notification_channel</string>
+    <string name="notification_title">Location Tracking starts now</string>
+    <string name="stop_tracking">Stop Tracking</string>
+    <string name="tracking_user_location">Tracking user location</string>
 </resources>

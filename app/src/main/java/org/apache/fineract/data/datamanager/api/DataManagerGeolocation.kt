@@ -15,6 +15,7 @@ class DataManagerGeolocation @Inject constructor(private val baseManagerApi: Bas
                                                  val preferencesHelper: PreferencesHelper)
     : FineractBaseDataManager(dataManagerAuth, preferencesHelper) {
 
+
     fun getVisitedCustomerLocationListAsync(): Deferred<List<UserLocation>> {
         return baseManagerApi.geolocationService.getVisitedCustomerLocationListAsync()
     }
