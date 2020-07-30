@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.evernote.android.job.JobManager;
+import com.google.android.libraries.places.api.Places;
 import com.mifos.mobile.passcode.utils.ForegroundChecker;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
@@ -42,6 +43,7 @@ public class FineractApplication extends Application {
         Fabric.with(this, new Crashlytics());
         FlowManager.init(this);
         ForegroundChecker.init(this);
+        Places.initialize(this, getString(R.string.google_api_key));
     }
 
     public static Context getContext() {
@@ -66,7 +68,7 @@ public class FineractApplication extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(LanguageUtils.onAttach(base, Locale.getDefault().getLanguage()));
     }
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);

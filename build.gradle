@@ -38,7 +38,7 @@ ext {
 
     // App dependencies
     supportLibraryVersion = '1.0.0'
-    daggerVersion = '2.5'
+    daggerVersion = '2.12'
     retrofitVersion = '2.4.0'
     okHttp3Version = '3.11.0'
     butterKnifeVersion = '10.1.0'
@@ -77,4 +77,5 @@ ext {
     map_utils = "1.0.0"
     map_services = "0.2.9"
     work_version = "2.3.4"
+    places = "2.3.0"
 }

@@ -173,6 +173,10 @@ dependencies {
     implementation "com.google.maps:google-maps-services:$map_services"
     implementation "org.slf4j:slf4j-nop:1.7.25"
 
+    //Google Maps Places
+    implementation "com.google.android.libraries.places:places:$places"
+
+
     //work manager
     implementation "androidx.work:work-runtime-ktx:$work_version"
 

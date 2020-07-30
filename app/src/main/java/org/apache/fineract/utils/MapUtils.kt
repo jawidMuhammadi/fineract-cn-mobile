@@ -30,6 +30,17 @@ fun buildAlertMessageNoGps(activity: Activity) {
             .show()
 }
 
+fun addMarkerOnMap(map: GoogleMap?, latLng: LatLng, title: String?) {
+    map?.addMarker(MarkerOptions().position(latLng).title(title))
+    val cameraPosition = CameraPosition.Builder()
+            .target(latLng)
+            .zoom(15f)
+            .bearing(90f)
+            .tilt(30f)
+            .build()
+    map?.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+}
+
 fun addMarkerOnNearByCustomers(map: GoogleMap?, onInfoWindowClickListener: GoogleMap.OnInfoWindowClickListener) {
     val locations = arrayListOf(
             LatLng(40.743595, -74.0078),

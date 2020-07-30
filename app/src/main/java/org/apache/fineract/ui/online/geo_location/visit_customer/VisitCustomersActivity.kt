@@ -2,6 +2,7 @@ package org.apache.fineract.ui.online.geo_location.visit_customer
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -23,6 +24,12 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.button.MaterialButton
 import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
@@ -33,17 +40,17 @@ import kotlinx.android.synthetic.main.activity_visit_customers2.*
 import org.apache.fineract.R
 import org.apache.fineract.data.models.geolocation.PolylineData
 import org.apache.fineract.ui.base.FineractBaseActivity
+import org.apache.fineract.utils.Constants.AUTOCOMPLETE_REQUEST_CODE
 import org.apache.fineract.utils.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
 import org.apache.fineract.utils.Constants.PERMISSIONS_REQUEST_ENABLE_GPS
 import org.apache.fineract.utils.Utils
+import org.apache.fineract.utils.addMarkerOnMap
 import org.apache.fineract.utils.addMarkerOnNearByCustomers
 import org.apache.fineract.utils.isMapsEnabled
 import org.apache.fineract.worker.LocationTrackWorker
 import org.apache.fineract.worker.LocationTrackWorker.Companion.KEY_CLIENT_NAME
 import java.util.*
 import javax.inject.Inject
-
-val MOUNTAIN_VIEW = LatLng(37.4, -122.1)
 
 
 class VisitCustomersActivity : FineractBaseActivity(),
@@ -55,6 +62,7 @@ class VisitCustomersActivity : FineractBaseActivity(),
     private var geoApiContext: GeoApiContext? = null
     private var polyLinesData = ArrayList<PolylineData>()
     private var googleMap: GoogleMap? = null
+    private lateinit var places: PlacesClient
 
     @Inject
     lateinit var factory: VisitCustomerViewModelFactory
@@ -72,8 +80,9 @@ class VisitCustomersActivity : FineractBaseActivity(),
         changeBackgroundColor(fabEnterManually, false)
         subscribeUI()
         geoApiContext = GeoApiContext.Builder()
-                .apiKey(getString(R.string.app_map_key))
+                .apiKey(getString(R.string.google_api_key))
                 .build()
+        places = Places.createClient(this)
         getLastKnownLocation()
     }
 
@@ -82,6 +91,7 @@ class VisitCustomersActivity : FineractBaseActivity(),
         fabEnterManually?.setOnClickListener {
             changeBackgroundColor(fabEnterManually, true)
             changeBackgroundColor(fabNearbyCustomers, false)
+            startSearchFragment()
         }
         fabNearbyCustomers?.setOnClickListener {
             changeBackgroundColor(fabEnterManually, false)
@@ -89,7 +99,6 @@ class VisitCustomersActivity : FineractBaseActivity(),
         }
         fabNavigate?.setOnClickListener {
             val data = workDataOf(KEY_CLIENT_NAME to "Ahmad jawid")
-
             val trackerWorker = OneTimeWorkRequestBuilder<LocationTrackWorker>()
                     .setInputData(data)
                     .build()
@@ -131,7 +140,6 @@ class VisitCustomersActivity : FineractBaseActivity(),
         }
         fusedLocationClient?.lastLocation?.addOnCompleteListener {
             lastKnowLocation = it.result
-            Log.e("VisitCustomerActivity", it.result.toString())
         }
     }
 
@@ -177,11 +185,6 @@ class VisitCustomersActivity : FineractBaseActivity(),
         googleMap = map
         map?.isMyLocationEnabled = true
         addMarkerOnNearByCustomers(map, this)
-//        map?.setOnMarkerClickListener { it ->
-//            drawDirection(it)
-//            true
-//        }
-        // map?.setOnPolylineClickListener(this)
     }
 
     override fun onStart() {
@@ -226,6 +229,30 @@ class VisitCustomersActivity : FineractBaseActivity(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            PERMISSIONS_REQUEST_ENABLE_GPS -> {
+
+            }
+            AUTOCOMPLETE_REQUEST_CODE -> {
+                when (resultCode) {
+                    Activity.RESULT_OK -> {
+                        data?.let {
+                            val place = Autocomplete.getPlaceFromIntent(data)
+                            addMarkerOnMap(googleMap, place.latLng!!, place.address!!)
+                        }
+                    }
+                    AutocompleteActivity.RESULT_ERROR -> {
+                        data?.let {
+                            val status = Autocomplete.getStatusFromIntent(data)
+                            Log.e(TAG, status.statusMessage)
+                        }
+                    }
+                    Activity.RESULT_CANCELED -> {
+                        // The user canceled the operation.
+                    }
+                }
+            }
+        }
         if (requestCode == PERMISSIONS_REQUEST_ENABLE_GPS) {
             getLocationPermission()
         }
@@ -244,10 +271,9 @@ class VisitCustomersActivity : FineractBaseActivity(),
                 )
                 val marker: Marker = googleMap!!.addMarker(MarkerOptions()
                         .position(endLocation)
-                        .title("Trip #$index")
-                        .snippet("Duration: " + polylineData.leg.duration
+                        .title(getString(R.string.trip_no, index))
+                        .snippet(getString(R.string.duration, polylineData.leg.duration.humanReadable)
                         ))
-                // mTripMarkers.add(marker)
                 marker.showInfoWindow()
             } else {
                 polylineData.polyline.color = ContextCompat.getColor(this, R.color.grey_500)
@@ -266,20 +292,16 @@ class VisitCustomersActivity : FineractBaseActivity(),
         directions.origin(currentPosition)
         directions.destination(destination).setCallback(object : PendingResult.Callback<DirectionsResult?> {
             override fun onResult(result: DirectionsResult?) {
-//                Log.d(TAG, "calculateDirections: routes: " + result.routes[0].toString());
-//                Log.d(TAG, "calculateDirections: duration: " + result.routes[0].legs[0].duration);
-//                Log.d(TAG, "calculateDirections: distance: " + result.routes[0].legs[0].distance);
-//                Log.d(TAG, "calculateDirections: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
-                addPolylinesToMap(result)
+                addPolyLinesToMap(result)
             }
 
             override fun onFailure(e: Throwable) {
-                Log.e("VisitCustomerActivity", e.printStackTrace().toString())
+                Log.e(TAG, e.printStackTrace().toString())
             }
         })
     }
 
-    fun addPolylinesToMap(result: DirectionsResult?) {
+    fun addPolyLinesToMap(result: DirectionsResult?) {
         Handler(Looper.getMainLooper()).post {
             if (polyLinesData.size > 0) {
                 for (polylineData in polyLinesData) {
@@ -292,10 +314,8 @@ class VisitCustomersActivity : FineractBaseActivity(),
             for (route in result!!.routes) {
                 val decodedPath = PolylineEncoding.decode(route.overviewPolyline.encodedPath)
                 val newDecodedPath: MutableList<LatLng> = ArrayList()
-
                 // This loops through all the LatLng coordinates of ONE polyline.
                 for (latLng in decodedPath) {
-//                        Log.d(TAG, "run: latlng: " + latLng.toString());
                     newDecodedPath.add(LatLng(
                             latLng.lat,
                             latLng.lng
@@ -313,9 +333,16 @@ class VisitCustomersActivity : FineractBaseActivity(),
                     onPolylineClick(polyline)
                     zoomRoute(polyline.points)
                 }
-                //  mSelectedMarker.setVisible(false)
             }
         }
+    }
+
+    private fun startSearchFragment() {
+        val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
+        val intent: Intent = Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.FULLSCREEN, fields)
+                .build(this)
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE)
     }
 
     private fun zoomRoute(lstLatLngRoute: List<LatLng?>?) {
@@ -338,6 +365,10 @@ class VisitCustomersActivity : FineractBaseActivity(),
                     com.google.maps.model.LatLng(40.743595, -74.0078)
             )
         }
+    }
+
+    companion object {
+        val TAG = VisitCustomersActivity::class.simpleName
     }
 
 }

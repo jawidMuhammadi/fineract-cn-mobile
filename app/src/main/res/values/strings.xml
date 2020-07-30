@@ -626,7 +626,7 @@
     <string name="please_wait_updating_group_status">"Updating group status, please wait... "</string>
     <string name="error_while_updating_group_status">Error while updating group status</string>
     <string name="error_while_creating_group">Error while creating group</string>
-    <string name="app_map_key">AIzaSyDj0eIgr0ZUoCAx_fvWT0VSLyCXvK8gjCw</string>
+    <string name="google_api_key">AIzaSyAZ0ODgBMsGvFxOjel4FkMB9Rza-1-k438</string>
     <string name="location">Location</string>
     <string name="client_name">Client Name</string>
     <string name="visit_date">Visit Date</string>
@@ -637,6 +637,7 @@
     <string name="yes">Yes</string>
     <string name="notification_channel_id">notification_channel</string>
     <string name="notification_title">Location Tracking starts now</string>
+    <string name="navigating_to">Navigating to %s</string>
     <string name="stop_tracking">Stop Tracking</string>
     <string name="tracking_user_location">Tracking user location</string>
     <string name="total_value">Total Value</string>
@@ -678,4 +679,7 @@
     <string name="language_type" translatable="false">language_type</string>
     <string name="change_account_password">Change your Account Password</string>
     <string name="change_password">Change Password</string>
+    <string name="start_tracking_path">Start tracking path</string>
+    <string name="trip_no">Trip #%d</string>
+    <string name="duration">Duration: %s</string>
 </resources>

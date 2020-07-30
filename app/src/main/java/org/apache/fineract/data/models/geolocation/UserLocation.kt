@@ -12,7 +12,7 @@ import java.util.*
 @Parcelize
 data class UserLocation(
         @SerializedName("user_id")
-        var userId: Int? = null,
+        var userName: String? = null,
 
         @SerializedName("client_name")
         var clientName: String? = null,
@@ -20,8 +20,8 @@ data class UserLocation(
         @SerializedName("address")
         var address: String? = null,
 
-        @SerializedName("latlng")
-        var latlng: GeoPoint? = null,
+        @SerializedName("geo_point")
+        var geoPoint: List<GeoPoint>? = null,
 
         @SerializedName("start_time")
         var startTime: String? = null,

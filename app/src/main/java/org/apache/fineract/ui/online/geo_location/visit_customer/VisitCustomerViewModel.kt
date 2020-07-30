@@ -24,6 +24,16 @@ class VisitCustomerViewModel constructor(
         }
     }
 
+    fun saveLocationPath(userLocation: UserLocation) {
+        uiScope.launch {
+            try {
+                dataManagerGeolocation.saveLocationPathAsync(userLocation).await()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         job.cancel()

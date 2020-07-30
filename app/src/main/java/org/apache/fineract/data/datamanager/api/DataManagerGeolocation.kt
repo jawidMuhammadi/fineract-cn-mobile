@@ -1,6 +1,7 @@
 package org.apache.fineract.data.datamanager.api
 
 import kotlinx.coroutines.Deferred
+import okhttp3.ResponseBody
 import org.apache.fineract.data.local.PreferencesHelper
 import org.apache.fineract.data.models.geolocation.UserLocation
 import org.apache.fineract.data.remote.BaseApiManager
@@ -20,8 +21,12 @@ class DataManagerGeolocation @Inject constructor(private val baseManagerApi: Bas
         return baseManagerApi.geolocationService.getVisitedCustomerLocationListAsync()
     }
 
-    suspend fun saveLastKnownLocation(userLocation: UserLocation) {
+    fun saveLastKnownLocation(userLocation: UserLocation) {
         baseManagerApi.geolocationService.saveLastKnownLocation(userLocation)
+    }
+
+    fun saveLocationPathAsync(userLocation: UserLocation): Deferred<ResponseBody> {
+        return baseManagerApi.geolocationService.saveLocationPathAsync(userLocation)
     }
 
 }

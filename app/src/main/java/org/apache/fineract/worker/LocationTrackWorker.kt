@@ -1,6 +1,6 @@
 package org.apache.fineract.worker
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -8,56 +8,82 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Looper
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.google.android.gms.location.*
 import org.apache.fineract.R
+import org.apache.fineract.data.datamanager.api.DataManagerGeolocation
+import org.apache.fineract.data.local.PreferencesHelper
+import org.apache.fineract.data.models.geolocation.GeoPoint
+import org.apache.fineract.data.models.geolocation.UserLocation
+import org.apache.fineract.utils.Constants
+import org.apache.fineract.utils.DateUtils
+import java.util.*
+import javax.inject.Inject
 
 /**
  * Created by Ahmad Jawid Muhammadi on 22/7/20.
  */
 
-class LocationTrackWorker(context: Context, parameters: WorkerParameters) :
+class LocationTrackWorker(context: Context,
+                          parameters: WorkerParameters) :
         CoroutineWorker(context, parameters) {
 
     private var broadcastReceiver: BroadcastReceiver? = null
     private val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as
                     NotificationManager
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private var geoPointList = arrayListOf<GeoPoint>()
+    private var startedTime: String? = null
+
+    @Inject
+    lateinit var dataManagerGeolocation: DataManagerGeolocation
 
     override suspend fun doWork(): Result {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(applicationContext)
+
         val clientName = inputData.getString(KEY_CLIENT_NAME)
                 ?: return Result.failure()
+        startedTime = DateUtils.getCurrentDate()
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
                 if (p1?.action == STOP_TRACKING) {
                     applicationContext.unregisterReceiver(broadcastReceiver)
                     notificationManager.cancel(ONGOING_NOTIFICATION_ID)
+                    saveUserLocation(createUserLocation())
                 }
             }
 
         }
         applicationContext.registerReceiver(broadcastReceiver, IntentFilter(STOP_TRACKING))
         setForeground(createForegroundInfo(clientName, applicationContext))
+        getLocation()
         return Result.success()
     }
 
-    private fun download(inputUrl: String, outputFile: String) {
-        // Downloads a file and updates bytes read
-        // Calls setForegroundInfo() periodically when it needs to update
-        // the ongoing Notification
+    private fun createUserLocation(): UserLocation {
+        return UserLocation().apply {
+            userName = PreferencesHelper(applicationContext).userName
+            startTime = startedTime
+            stopTime = DateUtils.getCurrentDate()
+            date = Calendar.getInstance().timeInMillis.toString()
+            geoPoint = geoPointList
+        }
     }
 
     // Creates an instance of ForegroundInfo which can be used to update the
     // ongoing notification.
     private fun createForegroundInfo(clientName: String, context: Context): ForegroundInfo {
         val id = applicationContext.getString(R.string.notification_channel_id)
-        val title = applicationContext.getString(R.string.notification_title)
-        val cancel = applicationContext.getString(R.string.stop_tracking)
         // This PendingIntent can be used to cancel the worker
         val intent = Intent().setAction(STOP_TRACKING)
         val intentBroadcast = PendingIntent.getBroadcast(
@@ -71,33 +97,60 @@ class LocationTrackWorker(context: Context, parameters: WorkerParameters) :
         }
 
         val notification = NotificationCompat.Builder(applicationContext, id)
-                .setContentTitle(title)
-                .setTicker(title)
-                .setContentText(clientName)
+                .setContentTitle(applicationContext.getString(R.string.notification_title))
+                .setContentText(applicationContext.getString(R.string.navigating_to, clientName))
                 .setSmallIcon(R.drawable.ic_baseline_location_on_24)
                 .setOngoing(true)
                 .setAutoCancel(false)
                 // Add the cancel action to the notification which can
                 // be used to cancel the worker
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, cancel, intentBroadcast)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel,
+                        applicationContext.getString(R.string.stop_tracking),
+                        intentBroadcast)
                 .build()
 
         return ForegroundInfo(ONGOING_NOTIFICATION_ID, notification)
     }
 
-    @SuppressLint("WrongConstant")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createChannel(context: Context) {
         val channel = NotificationChannel(
                 context.getString(R.string.notification_channel_id),
                 context.getString(R.string.tracking_user_location),
-                NotificationManager.IMPORTANCE_MAX
+                NotificationManager.IMPORTANCE_DEFAULT
         )
         with(notificationManager) {
             createNotificationChannel(channel)
         }
     }
 
+    private fun getLocation() {
+        // Create the location request to start receiving updates
+        val mLocationRequestHighAccuracy = LocationRequest()
+        mLocationRequestHighAccuracy.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequestHighAccuracy.interval = Constants.UPDATE_INTERVAL
+        mLocationRequestHighAccuracy.fastestInterval = Constants.FASTEST_INTERVAL
+
+        if (ActivityCompat.checkSelfPermission(applicationContext,
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        fusedLocationProviderClient.requestLocationUpdates(mLocationRequestHighAccuracy, object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                val location = locationResult.lastLocation
+                if (location != null) {
+                    val geoPoint = GeoPoint(location.latitude, location.longitude)
+                    geoPointList.add(geoPoint)
+                }
+            }
+        },
+                Looper.myLooper()) // Looper.myLooper tells this to repeat forever until thread is destroyed
+
+    }
+
+    fun saveUserLocation(userLocation: UserLocation) {
+        dataManagerGeolocation.saveLocationPathAsync(userLocation)
+    }
 
     companion object {
         const val KEY_CLIENT_NAME = "KEY_CLIENT_NAME"
