@@ -18,6 +18,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.google.android.gms.location.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.apache.fineract.R
 import org.apache.fineract.data.datamanager.api.DataManagerGeolocation
 import org.apache.fineract.data.local.PreferencesHelper
@@ -32,8 +35,8 @@ import javax.inject.Inject
  * Created by Ahmad Jawid Muhammadi on 22/7/20.
  */
 
-class LocationTrackWorker(context: Context,
-                          parameters: WorkerParameters) :
+class PathTrackerWorker(context: Context,
+                        parameters: WorkerParameters) :
         CoroutineWorker(context, parameters) {
 
     private var broadcastReceiver: BroadcastReceiver? = null
@@ -65,8 +68,9 @@ class LocationTrackWorker(context: Context,
 
         }
         applicationContext.registerReceiver(broadcastReceiver, IntentFilter(STOP_TRACKING))
-        setForeground(createForegroundInfo(clientName, applicationContext))
         getLocation()
+        setForeground(createForegroundInfo(clientName, applicationContext))
+
         return Result.success()
     }
 
@@ -91,7 +95,6 @@ class LocationTrackWorker(context: Context,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT)
 
-        // Create a Notification channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(context)
         }
@@ -149,7 +152,13 @@ class LocationTrackWorker(context: Context,
     }
 
     fun saveUserLocation(userLocation: UserLocation) {
-        dataManagerGeolocation.saveLocationPathAsync(userLocation)
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                dataManagerGeolocation.saveLocationPathAsync(userLocation).await()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     companion object {

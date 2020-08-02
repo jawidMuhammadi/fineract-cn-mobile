@@ -38,6 +38,7 @@ import com.google.maps.internal.PolylineEncoding
 import com.google.maps.model.DirectionsResult
 import kotlinx.android.synthetic.main.activity_visit_customers2.*
 import org.apache.fineract.R
+import org.apache.fineract.data.models.customer.Customer
 import org.apache.fineract.data.models.geolocation.PolylineData
 import org.apache.fineract.ui.base.FineractBaseActivity
 import org.apache.fineract.utils.Constants.AUTOCOMPLETE_REQUEST_CODE
@@ -47,8 +48,8 @@ import org.apache.fineract.utils.Utils
 import org.apache.fineract.utils.addMarkerOnMap
 import org.apache.fineract.utils.addMarkerOnNearByCustomers
 import org.apache.fineract.utils.isMapsEnabled
-import org.apache.fineract.worker.LocationTrackWorker
-import org.apache.fineract.worker.LocationTrackWorker.Companion.KEY_CLIENT_NAME
+import org.apache.fineract.worker.PathTrackerWorker
+import org.apache.fineract.worker.PathTrackerWorker.Companion.KEY_CLIENT_NAME
 import java.util.*
 import javax.inject.Inject
 
@@ -63,10 +64,12 @@ class VisitCustomersActivity : FineractBaseActivity(),
     private var polyLinesData = ArrayList<PolylineData>()
     private var googleMap: GoogleMap? = null
     private lateinit var places: PlacesClient
+    private var customers: List<Customer>? = null
 
     @Inject
     lateinit var factory: VisitCustomerViewModelFactory
     private var viewModel: VisitCustomerViewModel? = null
+
 
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +87,8 @@ class VisitCustomersActivity : FineractBaseActivity(),
                 .build()
         places = Places.createClient(this)
         getLastKnownLocation()
+        viewModel?.fetchCustomers(0, 10)
+
     }
 
     private fun subscribeUI() {
@@ -91,15 +96,17 @@ class VisitCustomersActivity : FineractBaseActivity(),
         fabEnterManually?.setOnClickListener {
             changeBackgroundColor(fabEnterManually, true)
             changeBackgroundColor(fabNearbyCustomers, false)
+            googleMap?.clear()
             startSearchFragment()
         }
         fabNearbyCustomers?.setOnClickListener {
             changeBackgroundColor(fabEnterManually, false)
             changeBackgroundColor(fabNearbyCustomers, true)
+            customers?.let { addMarkerOnNearByCustomers(googleMap, lastKnowLocation, it, this) }
         }
         fabNavigate?.setOnClickListener {
             val data = workDataOf(KEY_CLIENT_NAME to "Ahmad jawid")
-            val trackerWorker = OneTimeWorkRequestBuilder<LocationTrackWorker>()
+            val trackerWorker = OneTimeWorkRequestBuilder<PathTrackerWorker>()
                     .setInputData(data)
                     .build()
 
@@ -107,6 +114,15 @@ class VisitCustomersActivity : FineractBaseActivity(),
                 enqueue(trackerWorker)
             }
         }
+
+        viewModel?.customerList?.observe(this, androidx.lifecycle.Observer {
+            it?.let {
+                customers = it
+                lastKnowLocation?.let {
+                    addMarkerOnNearByCustomers(googleMap, it, customers!!, this)
+                }
+            }
+        })
     }
 
 
@@ -140,6 +156,7 @@ class VisitCustomersActivity : FineractBaseActivity(),
         }
         fusedLocationClient?.lastLocation?.addOnCompleteListener {
             lastKnowLocation = it.result
+            customers?.let { it1 -> addMarkerOnNearByCustomers(googleMap, lastKnowLocation, it1, this) }
         }
     }
 
@@ -184,7 +201,6 @@ class VisitCustomersActivity : FineractBaseActivity(),
         }
         googleMap = map
         map?.isMyLocationEnabled = true
-        addMarkerOnNearByCustomers(map, this)
     }
 
     override fun onStart() {
@@ -308,7 +324,7 @@ class VisitCustomersActivity : FineractBaseActivity(),
                     polylineData.polyline.remove()
                 }
                 polyLinesData.clear()
-                polyLinesData = ArrayList<PolylineData>()
+                polyLinesData = ArrayList()
             }
             var duration = 999999999.0
             for (route in result!!.routes) {
@@ -340,7 +356,7 @@ class VisitCustomersActivity : FineractBaseActivity(),
     private fun startSearchFragment() {
         val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
         val intent: Intent = Autocomplete.IntentBuilder(
-                AutocompleteActivityMode.FULLSCREEN, fields)
+                AutocompleteActivityMode.OVERLAY, fields)
                 .build(this)
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE)
     }
@@ -362,7 +378,10 @@ class VisitCustomersActivity : FineractBaseActivity(),
         marker?.let {
             calculateDirections(
                     it,
-                    com.google.maps.model.LatLng(40.743595, -74.0078)
+                    com.google.maps.model.LatLng(
+                            lastKnowLocation?.latitude!!,
+                            lastKnowLocation?.longitude!!
+                    )
             )
         }
     }
