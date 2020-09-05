@@ -11,6 +11,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Looper
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -26,6 +27,7 @@ import org.apache.fineract.data.datamanager.api.DataManagerGeolocation
 import org.apache.fineract.data.local.PreferencesHelper
 import org.apache.fineract.data.models.geolocation.GeoPoint
 import org.apache.fineract.data.models.geolocation.UserLocation
+import org.apache.fineract.ui.online.geo_location.visit_customer.VisitCustomersActivity
 import org.apache.fineract.utils.Constants
 import org.apache.fineract.utils.DateUtils
 import java.util.*
@@ -35,8 +37,8 @@ import javax.inject.Inject
  * Created by Ahmad Jawid Muhammadi on 22/7/20.
  */
 
-class PathTrackerWorker(context: Context,
-                        parameters: WorkerParameters) :
+class PathTrackerWorker @Inject constructor(context: Context,
+                                            parameters: WorkerParameters) :
         CoroutineWorker(context, parameters) {
 
     private var broadcastReceiver: BroadcastReceiver? = null
@@ -46,6 +48,9 @@ class PathTrackerWorker(context: Context,
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var geoPointList = arrayListOf<GeoPoint>()
     private var startedTime: String? = null
+    private var showNotifications = true
+    private lateinit var locationCallback: LocationCallback
+
 
     @Inject
     lateinit var dataManagerGeolocation: DataManagerGeolocation
@@ -60,16 +65,34 @@ class PathTrackerWorker(context: Context,
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
                 if (p1?.action == STOP_TRACKING) {
-                    applicationContext.unregisterReceiver(broadcastReceiver)
-                    notificationManager.cancel(ONGOING_NOTIFICATION_ID)
+                    notificationManager.cancelAll()
                     saveUserLocation(createUserLocation())
+                    showNotifications = false
+                    fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+                    applicationContext.unregisterReceiver(broadcastReceiver)
+                    Log.e(TAG, "onReceive has been called")
                 }
             }
 
         }
         applicationContext.registerReceiver(broadcastReceiver, IntentFilter(STOP_TRACKING))
+
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                super.onLocationResult(locationResult)
+                val location = locationResult.lastLocation
+                if (location != null) {
+                    val geoPoint = GeoPoint(location.latitude, location.longitude)
+                    geoPointList.add(geoPoint)
+                    Log.e(TAG, "onLocationResult")
+                }
+            }
+        }
         getLocation()
-        setForeground(createForegroundInfo(clientName, applicationContext))
+
+        while (showNotifications)
+            setForeground(createForegroundInfo(clientName, applicationContext))
 
         return Result.success()
     }
@@ -99,14 +122,18 @@ class PathTrackerWorker(context: Context,
             createChannel(context)
         }
 
+        val contentIntent = PendingIntent.getActivity(
+                applicationContext, 1,
+                Intent(applicationContext, VisitCustomersActivity::class.java),
+                PendingIntent.FLAG_UPDATE_CURRENT)
+
         val notification = NotificationCompat.Builder(applicationContext, id)
                 .setContentTitle(applicationContext.getString(R.string.notification_title))
                 .setContentText(applicationContext.getString(R.string.navigating_to, clientName))
                 .setSmallIcon(R.drawable.ic_baseline_location_on_24)
                 .setOngoing(true)
                 .setAutoCancel(false)
-                // Add the cancel action to the notification which can
-                // be used to cancel the worker
+                .setContentIntent(contentIntent)
                 .addAction(android.R.drawable.ic_menu_close_clear_cancel,
                         applicationContext.getString(R.string.stop_tracking),
                         intentBroadcast)
@@ -138,17 +165,10 @@ class PathTrackerWorker(context: Context,
                         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return
         }
-        fusedLocationProviderClient.requestLocationUpdates(mLocationRequestHighAccuracy, object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                val location = locationResult.lastLocation
-                if (location != null) {
-                    val geoPoint = GeoPoint(location.latitude, location.longitude)
-                    geoPointList.add(geoPoint)
-                }
-            }
-        },
-                Looper.myLooper()) // Looper.myLooper tells this to repeat forever until thread is destroyed
-
+        fusedLocationProviderClient.requestLocationUpdates(
+                mLocationRequestHighAccuracy,
+                locationCallback,
+                Looper.getMainLooper())
     }
 
     fun saveUserLocation(userLocation: UserLocation) {
@@ -165,7 +185,6 @@ class PathTrackerWorker(context: Context,
         const val KEY_CLIENT_NAME = "KEY_CLIENT_NAME"
         const val ONGOING_NOTIFICATION_ID = 10
         const val STOP_TRACKING = "stop_tracking"
+        val TAG = PathTrackerWorker::class.simpleName
     }
-
-
 }

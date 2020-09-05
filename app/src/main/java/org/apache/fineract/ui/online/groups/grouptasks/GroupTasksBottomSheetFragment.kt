@@ -42,11 +42,11 @@ class GroupTasksBottomSheetFragment(val group: Group) : FineractBaseBottomSheetD
         dialog.setContentView(rootView)
         behavior = BottomSheetBehavior.from(rootView.parent as View)
         (activity as FineractBaseActivity).activityComponent.inject(this)
+        ButterKnife.bind(this, rootView)
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(GroupViewModel::class.java)
         setDataOnViews()
 
         subscribeUI()
-        ButterKnife.bind(this, rootView)
         return dialog
     }
 

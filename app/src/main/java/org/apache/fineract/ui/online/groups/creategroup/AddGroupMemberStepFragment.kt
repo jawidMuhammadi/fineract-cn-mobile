@@ -80,6 +80,7 @@ class AddGroupMemberStepFragment : FineractBaseFragment(), Step, NameListAdapter
     }
 
 
+    @Optional
     @OnClick(R.id.ibAddMember)
     fun showAddMemberView() {
         showAddMemberView(GroupAction.CREATE, null)

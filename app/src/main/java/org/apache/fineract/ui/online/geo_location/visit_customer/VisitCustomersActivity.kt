@@ -105,13 +105,21 @@ class VisitCustomersActivity : FineractBaseActivity(),
             customers?.let { addMarkerOnNearByCustomers(googleMap, lastKnowLocation, it, this) }
         }
         fabNavigate?.setOnClickListener {
-            val data = workDataOf(KEY_CLIENT_NAME to "Ahmad jawid")
-            val trackerWorker = OneTimeWorkRequestBuilder<PathTrackerWorker>()
-                    .setInputData(data)
-                    .build()
+            if (fabNavigate.text == getString(R.string.start_tracking_path)) {
+                fabNavigate.text = getString(R.string.stop_tracking)
+                val data = workDataOf(KEY_CLIENT_NAME to "Ahmad Jawid")
+                val trackerWorker = OneTimeWorkRequestBuilder<PathTrackerWorker>()
+                        .setInputData(data)
+                        .build()
 
-            with(WorkManager.getInstance(this)) {
-                enqueue(trackerWorker)
+                with(WorkManager.getInstance(this)) {
+                    enqueue(trackerWorker)
+                }
+
+            } else {
+                fabNavigate.text = getString(R.string.start_tracking_path)
+                val intent = Intent().setAction(PathTrackerWorker.STOP_TRACKING)
+                sendBroadcast(intent)
             }
         }
 
@@ -287,7 +295,7 @@ class VisitCustomersActivity : FineractBaseActivity(),
                 )
                 val marker: Marker = googleMap!!.addMarker(MarkerOptions()
                         .position(endLocation)
-                        .title(getString(R.string.trip_no, index))
+                        .title(getString(R.string.gmtrip_no, index))
                         .snippet(getString(R.string.duration, polylineData.leg.duration.humanReadable)
                         ))
                 marker.showInfoWindow()

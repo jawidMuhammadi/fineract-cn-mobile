@@ -14,6 +14,7 @@ import com.stepstone.stepper.VerificationError
 import com.wajahatkarim3.easyvalidation.core.view_ktx.validator
 import kotlinx.android.synthetic.main.fragment_step_add_group_leader.*
 import kotlinx.android.synthetic.main.fragment_step_add_group_leader.view.*
+import kotlinx.android.synthetic.main.fragment_step_add_group_member.view.*
 import kotlinx.android.synthetic.main.fragment_step_add_group_member.view.rv_name
 import org.apache.fineract.R
 import org.apache.fineract.ui.adapters.NameListAdapter
@@ -59,6 +60,7 @@ class AddGroupLeaderStepFragment : FineractBaseFragment(), Step, NameListAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_step_add_group_leader, container, false)
+        ButterKnife.bind(this, rootView)
         (activity as FineractBaseActivity).activityComponent.inject(this)
         rootView.rv_name.adapter = nameLisAdapter
         nameLisAdapter.setOnItemClickListener(this)
@@ -80,6 +82,7 @@ class AddGroupLeaderStepFragment : FineractBaseFragment(), Step, NameListAdapter
         nameLisAdapter.submitList(leaders)
     }
 
+    @Optional
     @OnClick(R.id.ibAddLeader)
     fun showAddLeaderView() {
         showAddLeaderView(GroupAction.CREATE, null)

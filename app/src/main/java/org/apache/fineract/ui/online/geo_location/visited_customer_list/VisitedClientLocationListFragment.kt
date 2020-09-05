@@ -28,8 +28,7 @@ class VisitedClientLocationListFragment : FineractBaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-        }
+        setToolbarTitle(getString(R.string.visited_customers))
 
     }
 

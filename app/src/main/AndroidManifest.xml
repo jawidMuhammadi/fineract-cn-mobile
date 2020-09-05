@@ -79,7 +79,6 @@
         <activity
             android:name=".ui.online.customers.createcustomer.customeractivity.CreateCustomerActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-
         <activity android:name=".ui.online.loanaccounts.debtincomereport.DebtIncomeReportActivity" />
         <activity android:name=".ui.online.identification.identificationlist.IdentificationsActivity" />
         <activity android:name=".ui.online.identification.createidentification.identificationactivity.CreateIdentificationActivity" />
