@@ -5,7 +5,13 @@ import org.apache.fineract.injection.module.ActivityModule;
 import org.apache.fineract.ui.offline.CustomerPayloadFragment;
 import org.apache.fineract.ui.online.DashboardActivity;
 import org.apache.fineract.ui.online.accounting.accounts.AccountsFragment;
-import org.apache.fineract.ui.online.accounting.ledgers.LedgerFragment;
+import org.apache.fineract.ui.online.accounting.ledgers.createledger.CreateLedgerDetailsFragment;
+import org.apache.fineract.ui.online.accounting.ledgers.createledger.CreateLedgerReviewFragment;
+import org.apache.fineract.ui.online.accounting.ledgers.createledger.CreateLedgerSubLedgerFragment;
+import org.apache.fineract.ui.online.accounting.ledgers.createledger.createledgeractivity.CreateLedgerActivity;
+import org.apache.fineract.ui.online.accounting.ledgers.ledgerdetails.LedgerDetailsActivity;
+import org.apache.fineract.ui.online.accounting.ledgers.ledgerlist.LedgerListFragment;
+import org.apache.fineract.ui.online.accounting.ledgers.subledger.SubLedgerListActivity;
 import org.apache.fineract.ui.online.customers.createcustomer.customeractivity.CreateCustomerActivity;
 import org.apache.fineract.ui.online.customers.createcustomer.formcustomeraddress.FormCustomerAddressFragment;
 import org.apache.fineract.ui.online.customers.customeractivities.CustomerActivitiesFragment;
@@ -175,24 +181,5 @@ public interface ActivityComponent {
 
     void inject(@NotNull VisitedClientLocationListFragment visitedClientLocationListFragment);
 
-    void inject(GroupListFragment groupListFragment);
-
-    void inject(GroupAddressStepFragment groupAddressStepFragment);
-
-    void inject(CreateGroupActivity createGroupActivity);
-
-    void inject(AddGroupMemberStepFragment addGroupMemberStepFragment);
-
-    void inject(AddGroupLeaderStepFragment addGroupLeaderStepFragment);
-
-    void inject(GroupReviewStepFragment groupReviewStepFragment);
-
-    void inject(GroupDetailsFragment groupDetailsFragment);
-
-    void inject(GroupTasksBottomSheetFragment groupTasksBottomSheetFragment);
-
-    void inject(VisitedClientLocationListFragment visitedClientLocationListFragment);
-
-    void inject(VisitCustomersActivity visitCustomersActivity);
 }
 
